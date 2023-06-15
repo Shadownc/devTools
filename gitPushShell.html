@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/element-ui/2.15.7/theme-chalk/index.min.css"
+        type="text/css" rel="stylesheet" />
+    <style>
+        h2 {
+            text-align: center;
+        }
+
+        .main {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        .flex-center {
+            display: flex;
+            justify-content: center;
+        }
+        .tip{
+            margin-left: 160px;
+            margin-bottom: 30px;
+            width: 640px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h2>git推送一键生成可复制的命令</h2>
+        <div class="main">
+            <el-form :model="ruleForm" :rules="rules" label-suffix=":" ref="ruleForm" label-width="160px">
+                <el-form-item label="github生成的Token" prop="githubToken">
+                    <el-input v-model="ruleForm.githubToken"></el-input>
+                </el-form-item>
+                <el-form-item label="仓库的用户名" prop="githubUserName">
+                    <el-input v-model="ruleForm.githubUserName"></el-input>
+                </el-form-item>
+                <el-form-item label="仓库名称" prop="repoName">
+                    <el-input v-model="ruleForm.repoName"></el-input>
+                </el-form-item>
+                <el-alert class="tip" title="由于github对密码身份验证的支持已于 2021 年 8 月 13 日删除。现在想用命令行对代码进行仓库推送需要使用生成的Token" type="warning" :closable="false">
+                </el-alert>
+                <el-form-item label-width="0" class="flex-center">
+                    <el-button type="primary" @click="submitForm('ruleForm')">生成脚本并复制</el-button>
+                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"
+        type="application/javascript"></script>
+    <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/element-ui/2.15.7/index.min.js"
+        type="application/javascript"></script>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                ruleForm: {
+                    githubToken: '',
+                    githubUserName: '',
+                    repoName: ''
+                },
+                rules: {
+                    githubToken: [
+                        { required: true, message: '请输入github生成的Token', trigger: 'blue' }
+                    ],
+                    githubUserName: [
+                        { required: true, message: '请输入github仓库的用户名', trigger: 'blue' }
+                    ],
+                    repoName: [
+                        { required: true, message: '请输入github仓库名称', trigger: 'blue' }
+                    ],
+                }
+            },
+            methods: {
+                submitForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            let { githubToken, githubUserName, repoName } = this.ruleForm
+                            let text = `git remote set-url origin https://${githubToken.trim()}@github.com/${githubUserName.trim()}/${repoName.trim()}.git && git push`
+                            this.copy(text)
+                        } else {
+                            console.log('error submit!!');
+                            return false;
+                        }
+                    });
+                },
+                copy(text) {
+                    var copyipt = document.createElement("input");
+                    copyipt.setAttribute("value", text);
+                    document.body.appendChild(copyipt);
+                    copyipt.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(copyipt);
+                    this.$message({
+                        message: '复制成功',
+                        type: 'success'
+                    });
+                },
+                resetForm(formName) {
+                    this.$refs[formName].resetFields();
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>
